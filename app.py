@@ -1,31 +1,46 @@
 import gradio as gr
-from pdf_reader import extract_text_from_pdf
-from vector_store import chunk_text, embed_chunks, build_faiss_index, get_top_chunks
 from quiz_generator import generate_mcqs
+from pdf_reader import extract_text_from_pdf
+from utils import save_to_txt, save_to_pdf
+import os
 
-def process(file, num_qs):
-    raw_text = extract_text_from_pdf(file)
-    chunks = chunk_text(raw_text)
-    embeddings = embed_chunks(chunks)
-    index = build_faiss_index(embeddings)
-    top_chunks = get_top_chunks("Generate quiz", chunks, index, k=5)
-    content_for_llm = "\n\n".join(top_chunks)
-    mcqs = generate_mcqs(content_for_llm, num_qs)
-    return mcqs
 
-with gr.Blocks() as demo:
+def process_pdf(file, num_questions):
+    if file is None:
+        return "Please upload a PDF."
+
+    text = extract_text_from_pdf(file)
+    mcqs = generate_mcqs(text, num_questions)
+
+    # Save MCQs to files
+    txt_path = save_to_txt(mcqs)
+    pdf_path = save_to_pdf(mcqs)
+
+    return mcqs, txt_path, pdf_path
+
+
+with gr.Blocks(theme=gr.themes.Soft()) as demo:
     gr.Markdown("""
-    # 📘 Smart Mock Quiz Generator
-    Upload your course notes or textbook as a PDF and get multiple-choice questions instantly! 🧠
+    # 📚 Smart PDF MCQ Generator
+    Upload a study PDF and generate multiple-choice questions!
     """)
 
     with gr.Row():
-        file_input = gr.File(label="Upload PDF", type="binary")
-        num_questions = gr.Slider(1, 10, value=5, step=1, label="Number of MCQs")
+        pdf_file = gr.File(label="📄 Upload your PDF", file_types=[".pdf"])
+        num_questions = gr.Number(label="🔢 Number of Questions", value=5)
 
-    btn = gr.Button("Generate Quiz 🧠")
-    output = gr.Textbox(label="Generated Quiz", lines=20)
+    with gr.Row():
+        generate_btn = gr.Button("🚀 Generate MCQs")
 
-    btn.click(fn=process, inputs=[file_input, num_questions], outputs=output)
+    mcq_output = gr.Textbox(label="📋 Generated MCQs", lines=20)
+    txt_file_output = gr.File(label="⬇️ Download TXT")
+    pdf_file_output = gr.File(label="⬇️ Download PDF")
 
-demo.launch()
+    generate_btn.click(
+        fn=process_pdf,
+        inputs=[pdf_file, num_questions],
+        outputs=[mcq_output, txt_file_output, pdf_file_output]
+    )
+
+if __name__ == "__main__":
+    demo.launch()
