@@ -1,24 +1,33 @@
-import openai
-import os
+# quiz_generator.py
+from openai import OpenAI
 
-openai.api_key = os.getenv("GROQ_API_KEY")
+client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key="your-groq-api-key")
 
 def generate_mcqs(text, num_questions=5):
     prompt = f"""
-You are an expert teacher. Based on the following content, generate {num_questions} multiple-choice questions.
-Each question must have 4 options and clearly mention the correct answer.
+You are a quiz generator bot. Based on the following content, generate {num_questions} MCQs with 4 options each (A, B, C, D) and provide the correct answer.
 
 Content:
-{text[:3000]}
+{text}
+
+Format:
+Q1. [question]
+A. Option A
+B. Option B
+C. Option C
+D. Option D
+Answer: [Correct Option]
+
+Only return the questions in this format.
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="llama3-70b-8192",
         messages=[
-            {"role": "system", "content": "You generate high-quality exam MCQs."},
+            {"role": "system", "content": "You are an expert MCQ generator."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.7,
     )
 
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
