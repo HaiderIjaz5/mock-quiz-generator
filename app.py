@@ -8,13 +8,15 @@ def process_pdf(file, num_qs):
     return mcqs
 
 with gr.Blocks() as demo:
-    gr.Markdown("📘 **Mock MCQ Quiz Generator**\nUpload a PDF to generate multiple-choice questions.")
-    with gr.Row():
-        file_input = gr.File(label="Upload PDF", type="binary")
-        num_questions = gr.Slider(1, 10, value=5, step=1, label="Number of Questions")
-    btn = gr.Button("Generate Quiz")
-    output = gr.Textbox(label="MCQs", lines=15)
+    gr.Markdown("📘 **Mock MCQ Quiz Generator**\n\nUpload a PDF (notes, textbook, etc.) to generate a quiz.")
 
-    btn.click(fn=process_pdf, inputs=[file_input, num_questions], outputs=output)
+    with gr.Row():
+        file_input = gr.File(label="Upload PDF File", type="binary")
+        num_questions = gr.Slider(1, 10, value=5, step=1, label="Number of MCQs")
+
+    generate_btn = gr.Button("🧠 Generate Quiz")
+    output = gr.Textbox(label="Generated Quiz", lines=20)
+
+    generate_btn.click(fn=process_pdf, inputs=[file_input, num_questions], outputs=output)
 
 demo.launch()
