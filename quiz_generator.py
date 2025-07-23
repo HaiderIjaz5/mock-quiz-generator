@@ -1,7 +1,10 @@
-# quiz_generator.py
 from openai import OpenAI
+import os
 
-client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key="your-groq-api-key")
+# Retrieve the secret from Hugging Face secret env variable
+api_key = os.environ.get("GROQ_API_KEY")
+
+client = OpenAI(base_url="https://api.groq.com/openai/v1", api_key=api_key)
 
 def generate_mcqs(text, num_questions=5):
     prompt = f"""
