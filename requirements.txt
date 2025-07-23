@@ -1,4 +1,5 @@
-gradio
-pdfplumber
-requests
 openai
+pdfplumber
+gradio
+sentence-transformers
+faiss-cpu
