@@ -46,7 +46,8 @@ Generate high-quality Multiple Choice Questions (MCQs) from any PDF-based study 
 
 ## 🖼️ UI Preview
 
-![App Screenshot](https://huggingface.co/spaces/haiderijaz/mock-quiz-generator/resolve/main/assets/demo_ui.png)
+![App Screenshot](<img width="1920" height="961" alt="image" src="https://github.com/user-attachments/assets/5108cd1a-d1a0-4aae-a168-a5bd3851ffb7" />
+)
 
 ---
 
