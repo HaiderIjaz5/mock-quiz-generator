@@ -1,46 +1,52 @@
+# app.py
+
 import gradio as gr
-from quiz_generator import generate_mcqs
-from pdf_reader import extract_text_from_pdf
-from utils import save_to_txt, save_to_pdf
+import tempfile
 import os
 
+from pdf_reader import extract_text_from_pdf
+from quiz_generator import generate_mcqs
+from vector_db import build_vector_db, retrieve_similar_chunks
+from utils import save_as_txt, save_as_pdf
 
-def process_pdf(file, num_questions):
-    if file is None:
-        return "Please upload a PDF."
+def handle_quiz_generation(pdf_file, question_count, export_type):
+    if not pdf_file:
+        return "Please upload a PDF file.", None
 
-    text = extract_text_from_pdf(file)
-    mcqs = generate_mcqs(text, num_questions)
+    # Save PDF to a temp location
+    temp_path = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf").name
+    with open(temp_path, "wb") as f:
+        f.write(pdf_file.read())
 
-    # Save MCQs to files
-    txt_path = save_to_txt(mcqs)
-    pdf_path = save_to_pdf(mcqs)
+    # Extract text
+    text = extract_text_from_pdf(temp_path)
 
-    return mcqs, txt_path, pdf_path
+    # Build vector DB from chunks
+    build_vector_db(text)
 
+    # Get relevant content for quiz (you can tweak this)
+    query = "Generate MCQs"
+    context = "\n\n".join(retrieve_similar_chunks(query, top_k=4))
 
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
-    gr.Markdown("""
-    # 📚 Smart PDF MCQ Generator
-    Upload a study PDF and generate multiple-choice questions!
-    """)
+    # Generate quiz
+    quiz = generate_mcqs(context, question_count)
 
-    with gr.Row():
-        pdf_file = gr.File(label="📄 Upload your PDF", file_types=[".pdf"])
-        num_questions = gr.Number(label="🔢 Number of Questions", value=5)
+    # Export file
+    export_path = save_as_pdf(quiz) if export_type == "PDF" else save_as_txt(quiz)
 
-    with gr.Row():
-        generate_btn = gr.Button("🚀 Generate MCQs")
+    return quiz, export_path
 
-    mcq_output = gr.Textbox(label="📋 Generated MCQs", lines=20)
-    txt_file_output = gr.File(label="⬇️ Download TXT")
-    pdf_file_output = gr.File(label="⬇️ Download PDF")
-
-    generate_btn.click(
-        fn=process_pdf,
-        inputs=[pdf_file, num_questions],
-        outputs=[mcq_output, txt_file_output, pdf_file_output]
-    )
-
-if __name__ == "__main__":
-    demo.launch()
+gr.Interface(
+    fn=handle_quiz_generation,
+    inputs=[
+        gr.File(label="📄 Upload PDF", file_types=[".pdf"]),
+        gr.Slider(1, 20, value=5, step=1, label="🧠 How many questions?"),
+        gr.Radio(["PDF", "TXT"], label="📤 Export format")
+    ],
+    outputs=[
+        gr.Textbox(label="📝 Generated MCQs", lines=20),
+        gr.File(label="⬇️ Download MCQs File")
+    ],
+    title="🧪 Mock MCQ Quiz Generator",
+    description="Upload a PDF, select number of questions, and download a generated quiz using Groq + LLaMA3. Powered by RAG (Chunking + Vector DB)."
+).launch()
