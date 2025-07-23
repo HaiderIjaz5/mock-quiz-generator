@@ -1,6 +1,6 @@
 gradio
-openai
-pymupdf
-sentence-transformers
-faiss-cpu
 fpdf
+faiss-cpu
+sentence-transformers
+openai
+pdfminer.six
