@@ -1,11 +1,11 @@
 # quiz_generator.py
 
-import os
 from openai import OpenAI
+import os
 
 client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
-    api_key=os.environ["GROQ_API_KEY"]  # Hugging Face secret
+    api_key=os.getenv("GROQ_API_KEY")
 )
 
 def generate_mcqs(text, num_questions=5):
@@ -22,8 +22,6 @@ B. Option B
 C. Option C
 D. Option D
 Answer: [Correct Option]
-
-Only return the questions in this format.
 """
 
     response = client.chat.completions.create(
