@@ -1,6 +1,6 @@
-openai
-pdfplumber
 gradio
+openai
+pymupdf
 sentence-transformers
 faiss-cpu
 fpdf
