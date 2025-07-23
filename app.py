@@ -1,21 +1,22 @@
-# app.py
-
 import gradio as gr
 from pdfminer.high_level import extract_text
 from quiz_generator import generate_mcqs
 from chunking import embed_and_store, search_chunks
 from utils import save_as_pdf, save_as_txt
 import os
-
-# For Hugging Face secret usage
-import os
 from dotenv import load_dotenv
+
+# Load secrets
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 def handle_quiz_generation(pdf_file, num_questions, export_format):
     if not pdf_file:
-        return "Please upload a PDF file."
+        return "❌ Please upload a PDF file.", None
+
+    # Enforce max questions to 50
+    if num_questions > 50:
+        return "❌ Please select 50 or fewer questions.", None
 
     # Extract text from PDF
     pdf_path = pdf_file.name
@@ -39,9 +40,10 @@ def handle_quiz_generation(pdf_file, num_questions, export_format):
 
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
     gr.Markdown("## 📚 Mock MCQ Quiz Generator from PDFs")
+    
     with gr.Row():
         pdf_input = gr.File(label="📄 Upload Study Material (PDF)", file_types=[".pdf"])
-        num_input = gr.Number(value=5, label="❓ Number of Questions", precision=0)
+        num_input = gr.Slider(minimum=1, maximum=50, value=5, step=1, label="❓ Number of Questions")
         format_choice = gr.Radio(["PDF", "TXT"], value="PDF", label="📝 Export Format")
 
     with gr.Row():
