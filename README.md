@@ -46,8 +46,7 @@ Generate high-quality Multiple Choice Questions (MCQs) from any PDF-based study 
 
 ## 🖼️ UI Preview
 
-![App Screenshot](<src="https://github.com/user-attachments/assets/5108cd1a-d1a0-4aae-a168-a5bd3851ffb7" />
-)
+![App Screenshot](https://github.com/user-attachments/assets/5108cd1a-d1a0-4aae-a168-a5bd3851ffb7)
 
 ---
 
