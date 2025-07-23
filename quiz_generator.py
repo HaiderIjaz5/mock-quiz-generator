@@ -1,12 +1,11 @@
 # quiz_generator.py
 
-from openai import OpenAI
 import os
+from openai import OpenAI
 
-# Use Hugging Face secrets (make sure GROQ_API_KEY is set)
 client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
-    api_key=os.environ.get("GROQ_API_KEY")
+    api_key=os.environ["GROQ_API_KEY"]  # Hugging Face secret
 )
 
 def generate_mcqs(text, num_questions=5):
@@ -36,4 +35,4 @@ Only return the questions in this format.
         temperature=0.7,
     )
 
-    return response.choices[0].message.content.strip()
+    return response.choices[0].message.content
